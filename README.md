@@ -14,8 +14,16 @@ It's designed to be used on the epaper-hat.
 
 ## Photos
 
+Questionnaire:
+
 ![Photo 1](images/photo_01.jpeg)
+
+Success Screen:
 
 ![Photo 2](images/photo_02.jpeg)
 
+Wrong Answer Screen:
+
 ![Photo 3](images/photo_03.jpeg)
+
+-----------------------
