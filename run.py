@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+import argparse
+import logging
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -8,7 +10,7 @@ from epd import epd2in7b as epdlib
 import RPi.GPIO as GPIO
 from tomodachi import get_hiragana
 
-def get_input(wait=100):
+def get_input(wait=1000):
     """When called, it waits 100s 
     for the first sign of input from the user,
     and returns a number corresponding to that input."""
@@ -31,8 +33,8 @@ def get_input(wait=100):
                 counter = wait
                 break
             
-        time.sleep(1)
-    print("You chose: {}".format(selected_key))
+        time.sleep(0.1)
+    logging.debug("You chose: {}".format(selected_key))
     return selected_key
 
 def test_romaji_hiragana(romaji, options):
@@ -55,7 +57,7 @@ def test_romaji_hiragana(romaji, options):
     font_nh = ImageFont.truetype(font_path, 18)
     draw = ImageDraw.Draw(canvas_black)
     msg_1 = u"What is the hiragana for\n'{}'?".format(romaji)
-    print(msg_1)
+    logging.debug(msg_1)
     
     draw.text(
             (2, 5),
@@ -65,7 +67,7 @@ def test_romaji_hiragana(romaji, options):
             )
     
     msg_2 = u"[1] {0}     [2] {1}\n\n[3] {2}    [4] {3}".format(*options)
-    print(msg_2)
+    logging.debug(msg_2)
     draw.text(
             (40,70),
             msg_2,
@@ -80,17 +82,17 @@ def test_romaji_hiragana(romaji, options):
     frame_red = epd.get_frame_buffer(canvas_red)
     epd.display_frame(frame_black, frame_red)
     answer = get_input()
-    return options[answer-1]
+    return options[answer-1] if answer is not None else None
 
-def print_result(points, success):
+def print_result(points, success, comment=None):
     """Displays the points, and the success state."""
     from epd import epd2in7b as epdlib
     from PIL import Image, ImageFont, ImageDraw
     if success:
         message = "Correct!"
     else:
-        message = "Wrong!"
-    print(message)
+        message = u"Wrong!\n {}".format(comment)
+    logging.debug(message)
     canvas_black = Image.new("L", (264, 176), "#ffffff")
     canvas_red = Image.new("L", (264, 176), "#ffffff")
     font_path = "/usr/share/fonts/truetype/noto/NotoMono-Regular.ttf"
@@ -103,26 +105,26 @@ def print_result(points, success):
         font=font)
     font_tiny = ImageFont.truetype(font_path, 12)
     draw.text(
-            (250, 120),
+            (30, 120),
             "[Press 1-3 to continue. 4 to exit.]",
             fill="#000000",
             font=font_tiny
             )
-    font_r = ImageFont.truetype(font_path, 30)
+    font_r = ImageFont.truetype(font_path, 18)
     draw = ImageDraw.Draw(canvas_red)
     msg =  "Score: {}".format(points)
-    print(msg)
+    logging.debug(msg)
     draw.text(
-        (100, 80),
+        (50, 80),
         msg,
         fill="#000000",
         font=font_r
         )
     epd = epdlib.EPD()
     epd.init()
-    frame_b = epd.get_frame_buffer(image_black.transpose(Image.ROTATE_90))
-    frame_r = epd.get_frame_buffer(image_red.transpose(Image.ROTATE_90))
-    epd.display(frame_b, frame_r)
+    frame_b = epd.get_frame_buffer(canvas_black.transpose(Image.ROTATE_90))
+    frame_r = epd.get_frame_buffer(canvas_red.transpose(Image.ROTATE_90))
+    epd.display_frame(frame_b, frame_r)
 
 
 def start_quiz():
@@ -142,10 +144,13 @@ def start_quiz():
         if answer == correct_kana:
             points+=1
             success=True
+            comment = None
         else:
             success=False
-        print_result(points, success)
-        reply = get_input(wait=10)
+            comment = u"{} =  {}".format(hiragana_to_test, correct_kana)
+
+        print_result(points, success, comment)
+        reply = get_input(wait=100)
         if reply == 4:
             break
         
