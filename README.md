@@ -7,10 +7,19 @@ It'll be a "Who Wants to be a Millionaire?" style quiz
 with four options.
 
 First, it'll be for learning the hiragana, the katakana
-and the Kanji.
+and the kanji.
 
-It's designed to be used on the epaper-hat.
+## Hardware
 
+This script is designed to be run on a Raspberry Pi 3, using the waveshare 
+e-paper-hat (2.7" model b with dual color support). However, there is no reason why
+it should not run on other models of the Raspberry Pi.
+
+## Python Version
+
+Right now, the module that this depends on, the epd libraries supplied by
+waveshare, are coded only with Python 2 in mind. I'm going to change that later
+so this uses Python 3 for its excellent unicode support.
 
 ## Photos
 
