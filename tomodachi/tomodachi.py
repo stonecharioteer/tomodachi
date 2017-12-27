@@ -4,7 +4,7 @@
 def get_hiragana():
     """Returns a dictionary of hiragana and their romaji."""
     import textwrap
-    data = """
+    data = u"""
                     a   i   u   e   o
                 ∅   あ  い  う  え  お
                 k   か  き  く  け  こ
@@ -27,10 +27,10 @@ def get_hiragana():
             key = items[0]
             hiragana = items[1:]
             for h, letter in zip(header, hiragana):
-                romaji = "{}{}".format(key, h)
+                romaji = u"{}{}".format(key, h)
                 hiragana_dict[romaji] = letter
     # also, need to add 'n'
-    hiragana_dict["n"] = "ん"
+    hiragana_dict["n"] = u"ん"
     return hiragana_dict
 
 if __name__ == "__main__":

@@ -21,15 +21,18 @@ def get_input(wait=100):
         ]
     for key in keys:
         GPIO.setup(key, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    counter = 1
-    while counter<=wait:
+    counter = 0
+    while counter<wait:
         counter+=1
-        input_states = dict((key,GPIO.input(gpio_pin)) for key,gpio_pin in enumerate(keys))
+        input_states = dict((key,GPIO.input(gpio_pin)) for key, gpio_pin in enumerate(keys))
         for key in range(4):
-            if input_states[key]:
+            if not input_states[key]:
                 selected_key = key+1
+                counter = wait
                 break
+            
         time.sleep(1)
+    print("You chose: {}".format(selected_key))
     return selected_key
 
 def test_romaji_hiragana(romaji, options):
@@ -47,31 +50,39 @@ def test_romaji_hiragana(romaji, options):
             "L", 
             (canvas_width, canvas_height), 
             "#ffffff")
-    font_path = "/usr/share/fonts/truetype/piboto/Piboto-Regular.ttf"
-    font_en = ImagFont.truetype(font_path, 24)
-    font_nh = Image.truetype(font_path, 18)
+    font_path = "fonts/rounded-mgenplus-1p-regular.ttf"
+    font_en = ImageFont.truetype(font_path, 20)
+    font_nh = ImageFont.truetype(font_path, 18)
     draw = ImageDraw.Draw(canvas_black)
+    msg_1 = u"What is the hiragana for\n'{}'?".format(romaji)
+    print(msg_1)
+    
     draw.text(
             (2, 5),
-            "What's the hiragana for {}?".format(romaji),
+            msg_1,
             fill = "#000000",
             font=font_en
             )
+    
+    msg_2 = u"[1] {0}     [2] {1}\n\n[3] {2}    [4] {3}".format(*options)
+    print(msg_2)
     draw.text(
-            (2,30),
-            "[1] {0}\t [2] {1}\n[3] {2}\t[4] {3}".format(*options),
-            fill = "#000000"
+            (40,70),
+            msg_2,
+            fill = "#000000",
             font=font_nh
             )
     epd = epdlib.EPD()
     epd.init()
-    frame_black = epd.get_frame_buffer(canvas_black.transpose(Image.ROTATE_90)
-    frame_red = epd.get_frame_buffer(canvas_red.transpose(Image.ROTATE_90)
+    canvas_black = canvas_black.transpose(Image.ROTATE_90)
+    canvas_red = canvas_red.transpose(Image.ROTATE_90)
+    frame_black = epd.get_frame_buffer(canvas_black)
+    frame_red = epd.get_frame_buffer(canvas_red)
     epd.display_frame(frame_black, frame_red)
     answer = get_input()
-    return answer
+    return options[answer-1]
 
-def print_success(points, success):
+def print_result(points, success):
     """Displays the points, and the success state."""
     from epd import epd2in7b as epdlib
     from PIL import Image, ImageFont, ImageDraw
@@ -79,10 +90,10 @@ def print_success(points, success):
         message = "Correct!"
     else:
         message = "Wrong!"
-
+    print(message)
     canvas_black = Image.new("L", (264, 176), "#ffffff")
     canvas_red = Image.new("L", (264, 176), "#ffffff")
-    font_path = "/usr/share/fonts/truetype/piboto/Piboto-Regular.ttf"
+    font_path = "/usr/share/fonts/truetype/noto/NotoMono-Regular.ttf"
     font = ImageFont.truetype(font_path, 20)
     draw = ImageDraw.Draw(canvas_black)
     draw.text(
@@ -99,9 +110,11 @@ def print_success(points, success):
             )
     font_r = ImageFont.truetype(font_path, 30)
     draw = ImageDraw.Draw(canvas_red)
+    msg =  "Score: {}".format(points)
+    print(msg)
     draw.text(
         (100, 80),
-        "Score: {}",
+        msg,
         fill="#000000",
         font=font_r
         )
@@ -118,13 +131,14 @@ def start_quiz():
     hiragana = get_hiragana()
     points = 0
     while True:
-        hiragana_to_test = random.choice(hiragana.keys())
+        hiragana_to_test = random.choice(list(hiragana.keys()))
+
         correct_kana = hiragana[hiragana_to_test]
         other_options = [x for x in hiragana.values() if x != correct_kana]
         other_options = random.sample(other_options, 3)
         other_options.append(correct_kana)
         random.shuffle(other_options)
-        answer = ask_question(hiragana_to_test, options)
+        answer = test_romaji_hiragana(hiragana_to_test, other_options)
         if answer == correct_kana:
             points+=1
             success=True
