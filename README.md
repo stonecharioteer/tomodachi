@@ -16,11 +16,11 @@ It's designed to be used on the epaper-hat.
 
 Questionnaire:
 
-![Photo 1](images/photo_01.jpeg)
+![Photo 1](images/photo_02.jpeg)
 
 Success Screen:
 
-![Photo 2](images/photo_02.jpeg)
+![Photo 2](images/photo_01.jpeg)
 
 Wrong Answer Screen:
 
