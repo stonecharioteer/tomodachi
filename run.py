@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+from __future__ import division
+
 import argparse
 import logging
 
@@ -84,7 +86,7 @@ def test_romaji_hiragana(romaji, options):
     answer = get_input()
     return options[answer-1] if answer is not None else None
 
-def print_result(points, success, comment=None):
+def print_result(points, total, success, comment=None):
     """Displays the points, and the success state."""
     from epd import epd2in7b as epdlib
     from PIL import Image, ImageFont, ImageDraw
@@ -103,16 +105,16 @@ def print_result(points, success, comment=None):
         message,
         fill="#000000",
         font=font)
-    font_tiny = ImageFont.truetype(font_path, 10)
+    font_tiny = ImageFont.truetype(font_path, 12)
     draw.text(
-            (30, 120),
+            (25, 120),
             "[Press 1-3 to continue. 4 to exit.]",
             fill="#000000",
             font=font_tiny
             )
     font_r = ImageFont.truetype(font_path, 18)
     draw = ImageDraw.Draw(canvas_red)
-    msg =  "Score: {}".format(points)
+    msg =  "Score: {}/{} ({.2f}%)".format(points, total, points/total*100)
     logging.debug(msg)
     draw.text(
         (50, 80),
@@ -132,7 +134,9 @@ def start_quiz():
     import random
     hiragana = get_hiragana()
     points = 0
+    total = 0
     while True:
+        total+=1
         hiragana_to_test = random.choice(list(hiragana.keys()))
 
         correct_kana = hiragana[hiragana_to_test]
@@ -149,7 +153,7 @@ def start_quiz():
             success=False
             comment = u"{}: {}".format(hiragana_to_test, correct_kana)
 
-        print_result(points, success, comment)
+        print_result(points, total, success, comment)
         reply = get_input(wait=100)
         if reply == 4:
             break
