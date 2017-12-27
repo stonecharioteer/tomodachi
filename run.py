@@ -114,7 +114,7 @@ def print_result(points, total, success, comment=None):
             )
     font_r = ImageFont.truetype(font_path, 18)
     draw = ImageDraw.Draw(canvas_red)
-    msg =  "Score: {}/{} ({.2f}%)".format(points, total, points/total*100)
+    msg =  "Score: {}/{} ({:.2f}%)".format(points, total, points/total*100)
     logging.debug(msg)
     draw.text(
         (50, 80),

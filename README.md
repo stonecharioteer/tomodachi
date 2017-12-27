@@ -12,4 +12,10 @@ and the Kanji.
 It's designed to be used on the epaper-hat.
 
 
+## Photos
 
+![Photo 1](images/photo_01.jpeg)
+
+![Photo 2](images/photo_02.jpeg)
+
+![Photo 3](images/photo_03.jpeg)
