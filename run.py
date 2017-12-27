@@ -91,11 +91,11 @@ def print_result(points, success, comment=None):
     if success:
         message = "Correct!"
     else:
-        message = u"Wrong!\n {}".format(comment)
+        message = u"Wrong!\n{}".format(comment)
     logging.debug(message)
     canvas_black = Image.new("L", (264, 176), "#ffffff")
     canvas_red = Image.new("L", (264, 176), "#ffffff")
-    font_path = "/usr/share/fonts/truetype/noto/NotoMono-Regular.ttf"
+    font_path = "fonts/rounded-mgenplus-1p-regular.ttf"
     font = ImageFont.truetype(font_path, 20)
     draw = ImageDraw.Draw(canvas_black)
     draw.text(
@@ -103,7 +103,7 @@ def print_result(points, success, comment=None):
         message,
         fill="#000000",
         font=font)
-    font_tiny = ImageFont.truetype(font_path, 12)
+    font_tiny = ImageFont.truetype(font_path, 10)
     draw.text(
             (30, 120),
             "[Press 1-3 to continue. 4 to exit.]",
@@ -147,7 +147,7 @@ def start_quiz():
             comment = None
         else:
             success=False
-            comment = u"{} =  {}".format(hiragana_to_test, correct_kana)
+            comment = u"{}: {}".format(hiragana_to_test, correct_kana)
 
         print_result(points, success, comment)
         reply = get_input(wait=100)
@@ -155,6 +155,7 @@ def start_quiz():
             break
         
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     start_quiz()
 
 
